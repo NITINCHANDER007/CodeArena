@@ -462,7 +462,7 @@ export default function ProblemsListPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-sm whitespace-nowrap">
               <thead className="bg-[#161e2a] text-xs uppercase font-semibold text-gray-400 border-b border-[#243042]">
                 <tr>
                   <th className="py-3.5 px-4 w-12 text-center">Status</th>

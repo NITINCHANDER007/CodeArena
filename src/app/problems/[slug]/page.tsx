@@ -34,6 +34,7 @@ import {
   Check,
   Building2,
   Share2,
+  Code2,
 } from "lucide-react";
 
 // Dynamically import Monaco Editor to prevent SSR issues
@@ -174,6 +175,9 @@ export default function ProblemWorkspacePage({
   // Interview Timer
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+
+  // Mobile Workspace Navigation: "statement" | "code" | "console"
+  const [mobileWorkspaceTab, setMobileWorkspaceTab] = useState<"statement" | "code" | "console">("statement");
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -318,6 +322,7 @@ export default function ProblemWorkspacePage({
     if (!problem || !selectedLanguage) return;
     setIsRunning(true);
     setBottomTab("result");
+    setMobileWorkspaceTab("console");
     setSubmitResult(null);
 
     try {
@@ -351,6 +356,7 @@ export default function ProblemWorkspacePage({
 
     setIsSubmitting(true);
     setBottomTab("result");
+    setMobileWorkspaceTab("console");
     setRunResults(null);
 
     try {
@@ -483,10 +489,51 @@ export default function ProblemWorkspacePage({
 
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-[#0a0e14]">
+      {/* Mobile Workspace Mode Switcher (Visible on phone and tablet screens only) */}
+      <div className="lg:hidden flex items-center border-b border-[#243042] bg-[#10151d] px-2 py-1.5 shrink-0 z-10">
+        <div className="grid grid-cols-3 w-full gap-1">
+          <button
+            onClick={() => setMobileWorkspaceTab("statement")}
+            className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+              mobileWorkspaceTab === "statement"
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Problem</span>
+          </button>
+          <button
+            onClick={() => setMobileWorkspaceTab("code")}
+            className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+              mobileWorkspaceTab === "code"
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            <Code2 className="w-3.5 h-3.5" />
+            <span>Editor</span>
+          </button>
+          <button
+            onClick={() => setMobileWorkspaceTab("console")}
+            className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs font-bold transition-all ${
+              mobileWorkspaceTab === "console"
+                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            <Terminal className="w-3.5 h-3.5" />
+            <span>Console</span>
+          </button>
+        </div>
+      </div>
+
       {/* Workspace Split Layout */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* LEFT PANE: Description / Editorial / Solutions / Submissions */}
-        <div className="w-full lg:w-1/2 flex flex-col border-b lg:border-b-0 lg:border-r border-[#243042] bg-[#0d1117] overflow-hidden">
+        <div className={`w-full lg:w-1/2 flex flex-col border-b lg:border-b-0 lg:border-r border-[#243042] bg-[#0d1117] overflow-hidden ${
+          mobileWorkspaceTab === "statement" ? "flex flex-1" : "hidden lg:flex"
+        }`}>
           {/* Left Tabs Bar */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-[#243042] bg-[#10151d] shrink-0">
             <div className="flex items-center gap-1 overflow-x-auto">
@@ -794,7 +841,9 @@ export default function ProblemWorkspacePage({
         </div>
 
         {/* RIGHT PANE: Monaco Editor + Test Cases / Console */}
-        <div className="w-full lg:w-1/2 flex flex-col bg-[#10151d] overflow-hidden">
+        <div className={`w-full lg:w-1/2 flex flex-col bg-[#10151d] overflow-hidden ${
+          mobileWorkspaceTab !== "statement" ? "flex flex-1" : "hidden lg:flex"
+        }`}>
           {/* Editor Toolbar */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-[#243042] bg-[#0d1117] shrink-0">
             {/* Language Selector */}
@@ -857,7 +906,11 @@ export default function ProblemWorkspacePage({
           </div>
 
           {/* Monaco Editor Component */}
-          <div className="flex-1 relative min-h-[300px]">
+          <div className={`relative ${
+            mobileWorkspaceTab === "console"
+              ? "hidden lg:block lg:flex-1 min-h-[250px]"
+              : "flex-1 min-h-[300px]"
+          }`}>
             <Editor
               height="100%"
               theme="vs-dark"
@@ -882,8 +935,50 @@ export default function ProblemWorkspacePage({
             />
           </div>
 
+          {/* Mobile Quick Action Bar (Visible when editing on phone/tablet) */}
+          <div className="flex lg:hidden items-center justify-between px-3 py-2 border-t border-[#243042] bg-[#0d1117] shrink-0">
+            <button
+              onClick={() => {
+                setMobileWorkspaceTab("console");
+                setBottomTab("testcases");
+              }}
+              className="text-xs text-gray-300 hover:text-white flex items-center gap-1.5 py-1 px-2 rounded-lg bg-[#161e2a] border border-[#243042]"
+            >
+              <Terminal className="w-3.5 h-3.5 text-gray-400" />
+              <span>Test Cases</span>
+            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRunCode}
+                disabled={isRunning || isSubmitting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#161e2a] hover:bg-[#202b3c] border border-[#243042] text-gray-200 text-xs font-bold transition-all disabled:opacity-50"
+              >
+                {isRunning ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                ) : (
+                  <Play className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400" />
+                )}
+                <span>Run</span>
+              </button>
+              <button
+                onClick={handleSubmitCode}
+                disabled={isRunning || isSubmitting}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-gray-950 text-xs font-bold shadow-md shadow-emerald-500/20 transition-all disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Send className="w-3.5 h-3.5" />
+                )}
+                <span>Submit</span>
+              </button>
+            </div>
+          </div>
+
           {/* BOTTOM DRAWER: Test Cases & Execution Results */}
-          <div className="h-64 border-t border-[#243042] bg-[#0d1117] flex flex-col shrink-0">
+          <div className={`border-t border-[#243042] bg-[#0d1117] flex flex-col shrink-0 ${
+            mobileWorkspaceTab === "code" ? "hidden lg:flex lg:h-64" : "flex flex-1 lg:flex-none lg:h-64"
+          }`}>
             {/* Console Header Tabs */}
             <div className="flex items-center justify-between px-4 py-1.5 border-b border-[#243042] bg-[#10151d] shrink-0">
               <div className="flex items-center gap-2">
