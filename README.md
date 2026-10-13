@@ -1,158 +1,147 @@
-# CodeArena ⚔️
+# CodeArena
 
-> A modern, production-grade LeetCode clone and coding practice platform built end-to-end with **Next.js (App Router)** and **TypeScript**.
-
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
-[![Monaco Editor](https://img.shields.io/badge/Monaco_Editor-VS_Code_Core-007ACC?style=for-the-badge&logo=visualstudiocode)](https://microsoft.github.io/monaco-editor/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
+A full-stack competitive programming and interview preparation platform inspired by LeetCode, built with Next.js (App Router), TypeScript, Monaco Editor, and Judge0.
 
 ---
 
-## ✨ Features at a Glance
+## Overview
 
-### 💻 Monaco Code Editor & Multi-Language Support
-- Full-featured VS Code-style editor powered by **Monaco Editor**.
-- **9 Programming Languages**: Solve problems in **Python 3, JavaScript, TypeScript, C++, C, Java, Go, Rust, or C#**.
-- **Execution Sandbox**: Fast remote compilation and execution via Judge0 CE with instant fallback support.
-- **Shortcuts & UX**: Run (`Ctrl+Enter`), Submit (`Ctrl+Shift+Enter`), format code, and full-screen toggle.
+CodeArena is an end-to-end coding practice platform where candidates can solve algorithmic problems in 9 programming languages, get instant feedback against hidden test suites, and track progress through study plans and mock contests.
 
-### 🎯 Authentic LeetCode Experience
-- **📅 Daily Coding Challenge**: Fresh daily problems, streak tracking, coin rewards, and countdown timers.
-- **🔀 "Pick One" Random Problem**: Shuffle button to instantly jump into a surprise coding challenge.
-- **📚 Curated Study Plans**: Interactive roadmaps for **Top Interview 150**, **Blind 75**, **LeetCode 75**, and **Dynamic Programming Mastery**.
-- **🏢 Company Tags & Filters**: Filter problems asked by **Google**, **Meta**, **Amazon**, **Microsoft**, **Apple**, and **Uber**.
-- **⏱️ Interview Stopwatch**: Built-in timer to simulate real-world technical interview pressure.
-- **📊 Runtime & Memory Distributions**: See how your solution compares with "Beats X% in Runtime" and "Beats Y% in Memory" metrics.
-- **💡 Hints & Editorial**: Progressive spoiler-protected hints and step-by-step complexity breakdowns.
-
-### ⚔️ Contest Arena (`/contest`)
-- Compete in **Weekly** and **Biweekly** rated algorithmic rounds.
-- Live countdown timers, registration toggles, and **Virtual Contest** replay mode.
-- ELO-style rating tiers: **Knight**, **Master**, and **Grandmaster**.
-
-### 💬 Discuss Community Forum (`/discuss`)
-- Share and explore real interview questions, compensation breakdowns, and algorithmic approaches.
-- Upvote system, category filtering, search, and clean rich-text authoring.
-
-### 🛡️ Admin Portal (`/admin`)
-- **Problem Management**: Create and edit problem descriptions, constraints, hints, editorials, and starter code.
-- **Test Case Manager**: Configure sample (visible) vs hidden test cases with custom inputs/outputs.
-- **User Management**: Inspect users, switch roles, and ban/unban accounts.
-- **Submission Auditor**: Live view of submissions across all users.
-
-### 🔐 Secure Authentication & RBAC
-- JWT access and refresh tokens stored in secure `httpOnly` cookies.
-- Password strength meter, bcrypt hashing, and rate-limited login with account lockout protection.
-- Email verification and password reset flows with single-use tokens.
+The entire web application and backend are written in TypeScript with zero external database dependencies required for local development.
 
 ---
 
-## 🚀 Quick Start (Run Locally in 3 Steps)
+## Key Features
 
-### 1. Clone the repository
+### Problem Solving & Monaco Workspace
+- **Monaco Editor integration**: VS Code core directly in the browser with auto-closing brackets, syntax highlighting, and theme support.
+- **9 supported languages**: Python 3, JavaScript, TypeScript, C++, C, Java, Go, Rust, and C#.
+- **Sub-second test evaluation**: Code executes against both sample and hidden test cases with configurable time and memory limits.
+- **Editor shortcuts**: `Ctrl + Enter` to run sample cases, `Ctrl + Shift + Enter` to submit.
+- **Interview tools**: Integrated stopwatch, spoiler-protected hints, and detailed editorial solutions.
+- **Benchmark distributions**: Visual breakdown showing how solutions rank against other submissions in runtime and memory ("Beats X%").
+
+### LeetCode-Inspired Ecosystem
+- **Daily Coding Challenge**: Rotating daily challenge problem with streak tracking and coin rewards.
+- **Pick One**: Random problem shuffle to practice unfamiliar topics under time constraints.
+- **Curated Study Plans**: Pre-configured tracks including Top Interview 150, Blind 75, LeetCode 75, and Dynamic Programming.
+- **Company filtering**: Filter questions asked by Google, Meta, Amazon, Microsoft, Apple, and Uber.
+- **Contest Arena**: Weekly and biweekly mock contests with rating updates and virtual participation mode.
+- **Discuss Forum**: Community section for interview debriefs, compensation breakdowns, and solution discussions.
+
+### Admin Dashboard (`/admin`)
+- Problem authoring with markdown descriptions, starter code snippets, hints, and editorials.
+- Test case manager with sample vs hidden test flags.
+- User management with role switching (User / Admin) and account ban/unban controls.
+- Global submission audit log.
+
+### Authentication & Security
+- Access and refresh tokens stored in secure `httpOnly` cookies.
+- Passwords hashed with bcrypt and validated against minimum entropy rules.
+- Account lockout mechanism: locks accounts for 15 minutes after 5 consecutive failed login attempts.
+- Email verification and password reset workflows via single-use signed tokens.
+
+---
+
+## Tech Stack
+
+| Component | Technology |
+|---|---|
+| Frontend | Next.js 15 (App Router), React 19, Tailwind CSS |
+| Code Editor | `@monaco-editor/react` |
+| Backend | Next.js Route Handlers (TypeScript) |
+| Database | SQLite (Local Dev) / PostgreSQL (Production) via Prisma ORM |
+| Code Execution | Judge0 CE over HTTP with local sandboxed fallback runner |
+| Queue | Redis + BullMQ for asynchronous submission workers |
+| Authentication | JWT (`jose`), `httpOnly` cookies, `bcryptjs` |
+| Validation | Zod |
+
+---
+
+## Getting Started
+
+### Prerequisites
+- Node.js 18+ (tested on Node 20 & 24)
+- npm or pnpm
+
+### Local Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/NITINCHANDER007/CodeArena.git
+   cd CodeArena
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open in browser**
+   Navigate to [http://localhost:3000](http://localhost:3000).
+
+> **Note**: A pre-seeded local database is already configured, so you can test all candidate and admin workflows immediately without spinning up Docker or PostgreSQL.
+
+---
+
+## Default Test Accounts
+
+| Role | Email | Password | Access |
+|---|---|---|---|
+| Admin | `admin@codearena.dev` | `AdminPassword123!` | Full access to `/admin` dashboard & problem editor |
+| User | `coder@codearena.dev` | `UserPassword123!` | Problem workspace, submissions, contest arena |
+
+---
+
+## Production Setup with Docker (Optional)
+
+To run the complete production infrastructure with self-hosted PostgreSQL, Redis, and Judge0:
+
 ```bash
-git clone https://github.com/NITINCHANDER007/CodeArena.git
-cd CodeArena
-```
-
-### 2. Install dependencies
-```bash
-npm install
-```
-
-### 3. Start the application
-```bash
-npm run dev
-```
-
-Open **[http://localhost:3000](http://localhost:3000)** in your browser!
-
-> 💡 **Tip:** CodeArena runs instantly with a pre-configured local SQLite database (`dev.db`). No external database setup required to start exploring!
-
----
-
-## 🔑 Demo Accounts
-
-Use these pre-seeded accounts to test user and admin features:
-
-| Role | Email | Password | Permissions |
-| :--- | :--- | :--- | :--- |
-| **Admin** | `admin@codearena.dev` | `AdminPassword123!` | Full access to `/admin` dashboard & problem editor |
-| **Candidate** | `coder@codearena.dev` | `UserPassword123!` | Standard problem-solving & contest participation |
-
----
-
-## 🛠️ Tech Stack Architecture
-
-| Layer | Technologies |
-| :--- | :--- |
-| **Frontend** | Next.js 15 (App Router), React 19, Tailwind CSS, Lucide Icons |
-| **Editor** | Monaco Editor (`@monaco-editor/react`) |
-| **Backend & API** | Next.js API Routes (Route Handlers in TypeScript) |
-| **Database** | SQLite (Instant Local) / PostgreSQL 16 (Production) via Prisma ORM |
-| **Queue & Worker** | Redis + BullMQ for asynchronous background submission processing |
-| **Code Execution** | Judge0 CE (self-hosted via Docker) over HTTP |
-| **Authentication** | JWT (`jose`), `httpOnly` Cookies, `bcryptjs` |
-| **Validation** | Zod |
-
----
-
-## 🐳 Production Deployment with Docker (Optional)
-
-If you wish to spin up the complete self-hosted stack (PostgreSQL, Redis, and Judge0 code runner):
-
-```bash
-# Start PostgreSQL, Redis, and Judge0
+# 1. Start containers
 docker-compose up -d
 
-# Sync Prisma Schema
+# 2. Push database schema & seed
 npx prisma db push
-
-# Seed problems & languages
 npm run prisma:seed
 
-# Start development server
+# 3. Start Next.js application
 npm run dev
 ```
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 CodeArena/
-├── prisma/
-│   ├── schema.prisma        # Database models & relationships
-│   └── seed.ts              # Problem seeds & starter code
 ├── src/
 │   ├── app/
-│   │   ├── admin/           # Admin dashboard, problem & test case manager
+│   │   ├── admin/           # Admin dashboard (problems, test cases, users)
 │   │   ├── api/             # REST API route handlers
-│   │   ├── contest/         # Weekly & biweekly contests page
+│   │   ├── contest/         # Weekly & biweekly contest arena
 │   │   ├── discuss/         # Community discussion forum
-│   │   ├── leaderboard/     # Global rank leaderboard
-│   │   ├── problems/        # Problems list & split Monaco workspace
-│   │   ├── profile/         # User stats, streak & submission history
-│   │   └── (auth)/          # Login, signup, password reset pages
-│   ├── components/          # Reusable UI components & Navbar
+│   │   ├── problems/        # Problem catalog & split Monaco workspace
+│   │   ├── profile/         # User statistics & submission history
+│   │   └── (auth)/          # Authentication (login, signup, reset password)
+│   ├── components/          # Reusable UI components & navigation
 │   ├── context/             # Global AuthContext provider
-│   └── lib/                 # Judge0 runner, Prisma client, JWT & queue
-├── docker-compose.yml       # Production services (Postgres, Redis, Judge0)
-└── judge0.conf              # Sandbox security & resource limit configuration
+│   └── lib/                 # Judge0 client, Prisma singleton, JWT & queue utils
+├── prisma/
+│   ├── schema.prisma        # Database schema definition
+│   └── seed.ts              # Seed script for problems, test cases, and tags
+├── docker-compose.yml       # Production services (PostgreSQL, Redis, Judge0)
+└── judge0.conf              # Sandbox execution limits & configuration
 ```
 
 ---
 
-## 🤝 Contributing
+## License
 
-Contributions, issues, and feature requests are welcome!  
-Feel free to check out the [issues page](https://github.com/NITINCHANDER007/CodeArena/issues).
-
----
-
-## 📝 License
-
-This project is licensed under the **MIT License**.
+This project is licensed under the MIT License.
