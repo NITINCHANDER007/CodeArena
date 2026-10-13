@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id                  String                   @id @default(cuid())
+  name                String
+  username            String                   @unique
+  email               String                   @unique
+  passwordHash        String
+  role                String                   @default("USER") // USER, ADMIN
+  isVerified          Boolean                  @default(false)
+  isBanned            Boolean                  @default(false)
+  banReason           String?
+  failedLoginAttempts Int                      @default(0)
+  lockedUntil         DateTime?
+  avatarUrl           String?
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+
+  refreshTokens       RefreshToken[]
+  emailTokens         EmailVerificationToken[]
+  passwordResetTokens PasswordResetToken[]
+  submissions         Submission[]
+  bookmarks           Bookmark[]
+  discussions         Discussion[]
+
+  @@index([email])
+  @@index([username])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Problem {
+  id            String       @id @default(cuid())
+  title         String
+  slug          String       @unique
+  description   String
+  difficulty    String       @default("EASY") // EASY, MEDIUM, HARD
+  isPublished   Boolean      @default(true)
+  timeLimitMs   Int          @default(2000)
+  memoryLimitMb Int          @default(256)
+  orderIndex    Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  hints         String?
+  editorial     String?
+  companies     String?      // e.g. "Google, Amazon, Meta, Microsoft"
+  bookmarks     Bookmark[]
+  discussions   Discussion[]
+
+  tags         ProblemTag[]
+  testCases    TestCase[]
+  starterCodes StarterCode[]
+  submissions  Submission[]
+
+  @@index([slug])
+  @@index([difficulty])
+  @@index([isPublished])
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  problemId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, problemId])
+  @@index([userId])
+  @@index([problemId])
+}
+
+model Discussion {
+  id        String   @id @default(cuid())
+  problemId String
+  userId    String
+  title     String
+  content   String
+  upvotes   Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@index([userId])
+}
+
+model Tag {
+  id       String       @id @default(cuid())
+  name     String       @unique
+  slug     String       @unique
+  problems ProblemTag[]
+
+  @@index([slug])
+}
+
+model ProblemTag {
+  problemId String
+  tagId     String
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  tag     Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, tagId])
+  @@index([problemId])
+  @@index([tagId])
+}
+
+model Language {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  judge0Id   Int
+  monacoLang String
+  version    String
+  isEnabled  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  starterCodes StarterCode[]
+  submissions  Submission[]
+
+  @@index([slug])
+}
+
+model StarterCode {
+  id         String   @id @default(cuid())
+  problemId  String
+  languageId String
+  code       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@unique([problemId, languageId])
+}
+
+model TestCase {
+  id             String   @id @default(cuid())
+  problemId      String
+  input          String
+  expectedOutput String
+  isSample       Boolean  @default(false)
+  isHidden       Boolean  @default(false)
+  orderIndex     Int      @default(0)
+  explanation    String?
+  createdAt      DateTime @default(now())
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  @@index([problemId])
+  @@index([isSample])
+  @@index([isHidden])
+}
+
+model Submission {
+  id               String   @id @default(cuid())
+  userId           String
+  problemId        String
+  languageId       String
+  code             String
+  status           String   @default("PENDING") // PENDING, PROCESSING, ACCEPTED, WRONG_ANSWER, TIME_LIMIT_EXCEEDED, RUNTIME_ERROR, COMPILATION_ERROR, INTERNAL_ERROR
+  executionTimeMs  Float?
+  memoryUsedKb     Float?
+  failedTestCaseId String?
+  testCasesPassed  Int      @default(0)
+  totalTestCases   Int      @default(0)
+  compileOutput    String?
+  stdout           String?
+  stderr           String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  problem  Problem  @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([problemId])
+  @@index([status])
+  @@index([createdAt])
+}
