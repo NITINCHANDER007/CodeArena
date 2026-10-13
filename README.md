@@ -9,6 +9,10 @@
 [![Monaco Editor](https://img.shields.io/badge/Monaco_Editor-VS_Code_Core-007ACC?style=for-the-badge&logo=visualstudiocode)](https://microsoft.github.io/monaco-editor/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker)](https://www.docker.com/)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/NITINCHANDER007/CodeArena)
+
+👉 **Live Demo:** [https://54c01dcff76029.lhr.life](https://54c01dcff76029.lhr.life)
+
 ---
 
 ## ✨ Features at a Glance
