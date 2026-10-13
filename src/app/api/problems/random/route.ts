@@ -17,7 +17,8 @@ export async function GET() {
 
     return NextResponse.json({ slug: randomProblem.slug });
   } catch (error) {
-    console.error("Random problem error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Random problem error, using fallback:", error);
+    const slugs = ["two-sum", "valid-parentheses", "longest-substring-without-repeating-characters", "trapping-rain-water"];
+    return NextResponse.json({ slug: slugs[Math.floor(Math.random() * slugs.length)] });
   }
 }

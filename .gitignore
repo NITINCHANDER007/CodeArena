@@ -36,9 +36,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# database
-*.db
+# database journals
 *.db-journal
-*.sqlite
-prisma/dev.db
+*.sqlite-journal
+
 
