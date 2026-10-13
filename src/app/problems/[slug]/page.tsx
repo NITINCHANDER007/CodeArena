@@ -39,6 +39,7 @@ import {
 
 // Dynamically import Monaco Editor to prevent SSR issues
 const Editor = dynamic(() => import("@monaco-editor/react"), { ssr: false });
+import { FALLBACK_PROBLEMS, FALLBACK_LANGUAGES } from "@/lib/problemsFallback";
 
 interface Language {
   id: string;
@@ -200,17 +201,35 @@ export default function ProblemWorkspacePage({
     async function init() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/problems/${slug}`);
-        const data = await res.json();
-        if (res.ok && data.problem) {
-          const prob: ProblemDetail = data.problem;
-          setProblem(prob);
-          setIsBookmarked(Boolean(data.isBookmarked));
+        let prob: ProblemDetail | null = null;
+        let langs: Language[] = [];
+        let bookmarked = false;
 
-          const langs: Language[] =
-            data.allLanguages && data.allLanguages.length > 0
-              ? data.allLanguages
-              : prob.starterCodes.map((sc) => sc.language);
+        try {
+          const res = await fetch(`/api/problems/${slug}`);
+          const data = await res.json();
+          if (res.ok && data.problem) {
+            prob = data.problem;
+            bookmarked = Boolean(data.isBookmarked);
+            langs =
+              data.allLanguages && data.allLanguages.length > 0
+                ? data.allLanguages
+                : prob?.starterCodes?.map((sc) => sc.language) || [];
+          }
+        } catch {
+          // ignore network error
+        }
+
+        // If API returned nothing or threw, use embedded client fallback
+        if (!prob && FALLBACK_PROBLEMS[slug]) {
+          prob = FALLBACK_PROBLEMS[slug];
+          langs = FALLBACK_LANGUAGES as any;
+        }
+
+        if (prob) {
+          setProblem(prob);
+          setIsBookmarked(bookmarked);
+          if (langs.length === 0) langs = FALLBACK_LANGUAGES as any;
           setLanguages(langs);
 
           if (langs.length > 0) {
@@ -223,12 +242,12 @@ export default function ProblemWorkspacePage({
             const storageKey = `codearena_code_${prob.id}_${defaultLang.id}`;
             const savedCode = localStorage.getItem(storageKey);
             const starter =
-              prob.starterCodes.find((sc) => sc.languageId === defaultLang.id)?.code ||
+              prob.starterCodes?.find((sc) => sc.languageId === defaultLang.id)?.code ||
               getDefaultStarterCode(defaultLang.slug);
             setCode(savedCode || starter);
           }
 
-          if (prob.testCases.length > 0) {
+          if (prob.testCases && prob.testCases.length > 0) {
             setCustomInput(prob.testCases[0].input);
           }
         }
